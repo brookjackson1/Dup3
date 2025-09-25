@@ -15,7 +15,12 @@
       "WebFetch(domain:www.brandcolorcode.com)",
       "Bash(git init:*)",
       "Bash(git remote add:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(heroku:*)",
+      "Bash(mysql:*)",
+      "WebFetch(domain:unsplash.com)",
+      "WebFetch(domain:www.bing.com)",
+      "Bash(start download_real_photos.html)"
     ],
     "deny": [],
     "ask": []

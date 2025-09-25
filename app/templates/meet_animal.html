@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block title %}Meet {{ animal.name }} - Paws & Hearts Animal Rescue{% endblock %}
+
+{% block content %}
+<!-- Animal Hero Section -->
+<div class="animal-hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-6">
+                <div class="animal-hero-image">
+                    <img src="{{ url_for('static', filename='assets/animals/' + '%02d' % animal.animal_id + '_' + animal.name.lower().replace(' ', '_') + '.jpg') }}"
+                         alt="{{ animal.name }} - {{ animal.breed or 'Mixed' }}"
+                         class="hero-animal-photo">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="animal-hero-info">
+                    <h1 class="display-4 fw-bold mb-3">Meet {{ animal.name }}!</h1>
+                    <div class="animal-badges mb-4">
+                        <span class="badge bg-primary fs-6 me-2">{{ animal.species }}</span>
+                        <span class="badge bg-info fs-6 me-2">{{ animal.age }} {{ 'year' if animal.age == 1 else 'years' }} old</span>
+                        <span class="badge bg-{{ 'success' if animal.adoption_status == 'Available' else 'warning' if animal.adoption_status == 'Pending' else 'secondary' }} fs-6">{{ animal.adoption_status }}</span>
+                    </div>
+
+                    {% if animal.description %}
+                    <p class="lead mb-4">{{ animal.description }}</p>
+                    {% endif %}
+
+                    <div class="d-flex flex-wrap gap-3">
+                        {% if animal.adoption_status == 'Available' %}
+                        <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#adoptionInquiryModal">
+                            <i class="fas fa-heart me-2"></i>I'm Interested!
+                        </button>
+                        {% endif %}
+                        <a href="{{ url_for('animals.adopt_page') }}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>Back to All Animals
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Animal Details Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2"><strong>Name:</strong> {{ animal.name }}</li>
+                            <li class="mb-2"><strong>Species:</strong> {{ animal.species }}</li>
+                            <li class="mb-2"><strong>Breed:</strong> {{ animal.breed or 'Mixed' }}</li>
+                            <li class="mb-2"><strong>Age:</strong> {{ animal.age }} years old</li>
+                            <li class="mb-2"><strong>Gender:</strong> {{ animal.gender }}</li>
+                            <li class="mb-2"><strong>Size:</strong> {{ animal.size }}</li>
+                            {% if animal.color %}
+                            <li class="mb-2"><strong>Color:</strong> {{ animal.color }}</li>
+                            {% endif %}
+                            <li class="mb-2"><strong>Arrived:</strong> {{ animal.arrival_date.strftime('%B %d, %Y') if animal.arrival_date else 'Unknown' }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-heart me-2"></i>Personality & Care</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if animal.description %}
+                        <p><strong>Personality:</strong></p>
+                        <p>{{ animal.description }}</p>
+                        {% endif %}
+
+                        <div class="care-requirements">
+                            <h6 class="fw-bold text-success mb-3">What {{ animal.name }} Needs:</h6>
+                            <ul class="care-list">
+                                {% if animal.species == 'Dog' %}
+                                <li><i class="fas fa-walking me-2 text-primary"></i>Daily walks and exercise</li>
+                                <li><i class="fas fa-home me-2 text-primary"></i>Secure yard or living space</li>
+                                <li><i class="fas fa-bone me-2 text-primary"></i>Quality dog food and treats</li>
+                                <li><i class="fas fa-users me-2 text-primary"></i>Socialization and training</li>
+                                {% elif animal.species == 'Cat' %}
+                                <li><i class="fas fa-cat me-2 text-info"></i>Cozy indoor environment</li>
+                                <li><i class="fas fa-gamepad me-2 text-info"></i>Toys and scratching posts</li>
+                                <li><i class="fas fa-utensils me-2 text-info"></i>Premium cat food</li>
+                                <li><i class="fas fa-heart me-2 text-info"></i>Gentle handling and patience</li>
+                                {% elif animal.species == 'Rabbit' %}
+                                <li><i class="fas fa-carrot me-2 text-warning"></i>Fresh hay and vegetables</li>
+                                <li><i class="fas fa-home me-2 text-warning"></i>Spacious, safe enclosure</li>
+                                <li><i class="fas fa-running me-2 text-warning"></i>Daily exercise time</li>
+                                <li><i class="fas fa-user-md me-2 text-warning"></i>Exotic vet for checkups</li>
+                                {% else %}
+                                <li><i class="fas fa-home me-2 text-secondary"></i>Appropriate habitat setup</li>
+                                <li><i class="fas fa-utensils me-2 text-secondary"></i>Species-specific diet</li>
+                                <li><i class="fas fa-heart me-2 text-secondary"></i>Regular care and attention</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-user-md me-2"></i>Health Information</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if animal.medical_notes %}
+                        <p><strong>Medical Notes:</strong></p>
+                        <p>{{ animal.medical_notes }}</p>
+                        {% else %}
+                        <p class="text-muted">No specific medical notes on file.</p>
+                        {% endif %}
+
+                        <div class="health-checklist mt-3">
+                            <h6 class="fw-bold text-info mb-3">Health Care Completed:</h6>
+                            <ul class="health-list">
+                                <li><i class="fas fa-check-circle me-2 text-success"></i>Health screening</li>
+                                <li><i class="fas fa-check-circle me-2 text-success"></i>Age-appropriate vaccinations</li>
+                                {% if animal.gender == 'Male' %}
+                                <li><i class="fas fa-check-circle me-2 text-success"></i>Neutered</li>
+                                {% else %}
+                                <li><i class="fas fa-check-circle me-2 text-success"></i>Spayed</li>
+                                {% endif %}
+                                <li><i class="fas fa-check-circle me-2 text-success"></i>Microchipped for ID</li>
+                            </ul>
+                        </div>
+
+                        {% if animal.adoption_status == 'Available' %}
+                        <div class="mt-4">
+                            <button class="btn btn-info w-100" data-bs-toggle="modal" data-bs-target="#adoptionInquiryModal">
+                                <i class="fas fa-question-circle me-2"></i>Ask About {{ animal.name }}
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Similar Animals Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-4">Other {{ animal.species }}s Looking for Homes</h2>
+            <p class="lead text-muted">You might also fall in love with these adorable companions</p>
+        </div>
+
+        <div class="text-center">
+            <a href="{{ url_for('animals.adopt_page') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-paw me-2"></i>View All Available Animals
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Adoption Inquiry Modal -->
+<div class="modal fade" id="adoptionInquiryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-heart text-danger me-2"></i>Interested in Adopting {{ animal.name }}?
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <div class="modal-animal-preview">
+                        <img src="{{ url_for('static', filename='assets/animals/' + '%02d' % animal.animal_id + '_' + animal.name.lower().replace(' ', '_') + '.jpg') }}"
+                             alt="{{ animal.name }}" class="modal-preview-photo">
+                    </div>
+                    <h4 class="mt-3">{{ animal.name }}</h4>
+                    <p class="text-muted">{{ animal.breed or 'Mixed' }} • {{ animal.age }} years old</p>
+                </div>
+
+                <div class="adoption-process">
+                    <h5 class="fw-bold mb-3">Next Steps:</h5>
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="step-icon">
+                                <i class="fas fa-phone fa-2x text-primary mb-2"></i>
+                            </div>
+                            <h6>1. Contact Us</h6>
+                            <p class="small">Call (555) 123-PAWS to discuss {{ animal.name }}</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="step-icon">
+                                <i class="fas fa-handshake fa-2x text-success mb-2"></i>
+                            </div>
+                            <h6>2. Meet & Greet</h6>
+                            <p class="small">Schedule a visit to meet {{ animal.name }} in person</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="step-icon">
+                                <i class="fas fa-home fa-2x text-info mb-2"></i>
+                            </div>
+                            <h6>3. Take Home</h6>
+                            <p class="small">Complete adoption process and welcome {{ animal.name }} home</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-info bg-light p-3 rounded">
+                    <h6 class="fw-bold mb-2">Contact Information:</h6>
+                    <p class="mb-1"><i class="fas fa-phone me-2 text-primary"></i><strong>Phone:</strong> (555) 123-PAWS</p>
+                    <p class="mb-1"><i class="fas fa-envelope me-2 text-primary"></i><strong>Email:</strong> adopt@pawshearts.org</p>
+                    <p class="mb-0"><i class="fas fa-clock me-2 text-primary"></i><strong>Hours:</strong> Mon-Sat 10AM-6PM, Sun 12PM-5PM</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Maybe Later</button>
+                <a href="tel:+15551234PAWS" class="btn btn-primary">
+                    <i class="fas fa-phone me-2"></i>Call Now
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .animal-hero-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 4rem 0;
+    }
+
+    .animal-hero-image {
+        text-align: center;
+    }
+
+    .hero-animal-photo {
+        width: 100%;
+        max-width: 400px;
+        height: 400px;
+        object-fit: cover;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease;
+    }
+
+    .hero-animal-photo:hover {
+        transform: scale(1.02);
+    }
+
+    .animal-hero-info {
+        padding-left: 2rem;
+    }
+
+    .animal-badges .badge {
+        padding: 0.5rem 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .care-list {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    .care-list li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .care-list li:last-child {
+        border-bottom: none;
+    }
+
+    .health-list {
+        list-style: none;
+        padding-left: 0;
+    }
+
+    .health-list li {
+        padding: 0.3rem 0;
+    }
+
+    .modal-animal-preview {
+        width: 150px;
+        height: 150px;
+        border-radius: 15px;
+        overflow: hidden;
+        margin: 0 auto;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-preview-photo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .step-icon {
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .animal-hero-info {
+            padding-left: 0;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .hero-animal-photo {
+            max-width: 300px;
+            height: 300px;
+        }
+    }
+</style>
+
+{% endblock %}
